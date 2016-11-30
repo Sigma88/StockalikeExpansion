@@ -4,7 +4,7 @@ using Kopernicus.Components;
 using Kopernicus.Configuration;
 using Kopernicus.OnDemand;
 using System.Text;
-using System;
+using System.IO;
 using System.Reflection;
 using System.Linq;
 using KSP.UI.Screens;
@@ -46,24 +46,50 @@ namespace SASSXPlugin
             // CREATE MODIFIED BIOME MAPS
 
             Texture2D CPWBiomes = Utility.CreateReadable(Resources.FindObjectsOfTypeAll<Texture>().First(t => t.name == "StockalikeSolarSystemExpansion/Configs/Bodies/Earth/EarthData/SpoilersInside/Textures/CraterPlateauWaterBiomes") as Texture2D);
-            Texture2D CraterBiomes = Utility.CreateReadable(Resources.FindObjectsOfTypeAll<CBAttributeMapSO>().First(t => t.name == "kerbin_biome").CompileRGB());
-            Texture2D PlateauBiomes = Utility.CreateReadable(CraterBiomes);
-            Color Crater = new Color(0.6156862745098040f, 0.0745098039215686f, 0.0745098039215686f);
-            Color Plateau = new Color(0.8941176470588240f, 0.4823529411764710f, 0.1098039215686270f);
-            Color Water = new Color(0.2156862745098040f, 0.3843137254901960f, 0.6705882352941180f);
-            for (int x = 0; x < CPWBiomes.width; x++)
+            CBAttributeMapSO kerbinbiome = ChicxulubFixer.earth.BiomeMap;
+
+            Texture2D CraterBiomes = new Texture2D(kerbinbiome.Width, kerbinbiome.Height);
+            Texture2D PlateauBiomes = new Texture2D(kerbinbiome.Width, kerbinbiome.Height);
+
+            Color Crater = new Color(0.6156862745098040f, 0.0745098039215686f, 0.0745098039215686f, 1);
+            Color Plateau = new Color(0.8941176470588240f, 0.4823529411764710f, 0.1098039215686270f, 1);
+            Color Water = new Color(0.2156862745098040f, 0.3843137254901960f, 0.6705882352941180f, 1);
+
+            int h = CPWBiomes.height / 3;
+
+            for (int x = 0; x < kerbinbiome.Width; x++)
             {
-                for (int y = 0; y < CPWBiomes.height; y++)
+                for (int y = 0; y < kerbinbiome.Height; y++)
                 {
-                    Color color = CPWBiomes.GetPixel(x, y);
-                    if (color.r == 1)
-                        CraterBiomes.SetPixel(x + 2872, y + 913, Crater);
-                    if (color.g == 1)
-                        PlateauBiomes.SetPixel(x + 2872, y + 913, Plateau);
-                    if (color.b == 1)
-                        PlateauBiomes.SetPixel(x + 2872, y + 913, Water);
+                    Color Biome = kerbinbiome.GetPixelColor(x, y);
+                    if (x > 2903 && x < 2904 + CPWBiomes.width && y > 969 && y < 970 + h)
+                    {
+                        Color color = CPWBiomes.GetPixel(x - 2904, y - 970);
+                        if (color.r == 1)
+                            CraterBiomes.SetPixel(x, y, Crater);
+                        else
+                            CraterBiomes.SetPixel(x, y, Biome);
+
+                        color = CPWBiomes.GetPixel(x - 2904, y - 970 + h);
+                        if (color.g == 1)
+                            PlateauBiomes.SetPixel(x, y, Plateau);
+                        else
+                        {
+                            color = CPWBiomes.GetPixel(x - 2904, y - 970 + h + h);
+                            if (color.b == 1)
+                                PlateauBiomes.SetPixel(x, y, Water);
+                            else
+                                PlateauBiomes.SetPixel(x, y, Biome);
+                        }
+                    }
+                    else
+                    {
+                        CraterBiomes.SetPixel(x, y, Biome);
+                        PlateauBiomes.SetPixel(x, y, Biome);
+                    }
                 }
             }
+
             ChicxulubFixer.CraterBiomeMap.CreateMap(MapSO.MapDepth.RGB, CraterBiomes);
             ChicxulubFixer.PlateauBiomeMap.CreateMap(MapSO.MapDepth.RGB, PlateauBiomes);
             DestroyImmediate(CraterBiomes);
@@ -80,12 +106,12 @@ namespace SASSXPlugin
         public static CelestialBody impactor = null;
         public static Texture2D MainTex = null;
         public static Texture2D BumpMap = null;
-        public static CBAttributeMapSO CraterBiomeMap = null;
-        public static CBAttributeMapSO PlateauBiomeMap = null;
+        public static CBAttributeMapSO CraterBiomeMap = ScriptableObject.CreateInstance<CBAttributeMapSO>();
+        public static CBAttributeMapSO PlateauBiomeMap = ScriptableObject.CreateInstance<CBAttributeMapSO>();
         public bool Crater = true;
         public bool Asteroid = true;
         public bool FixBiomes = true;
-        
+
         void Update()
         {
             if (earth != null)
@@ -95,11 +121,13 @@ namespace SASSXPlugin
                 if ((time - epoch) < -598122400989261 && Crater)
                 {
                     Crater = false;
+                    FixBiomes = true;
                     RemoveCrater(earth);
                 }
                 else if ((time - epoch) > -598122400989261 && !Crater)
                 {
                     Crater = true;
+                    FixBiomes = true;
                     RestoreCrater(earth);
                 }
                 if (FixBiomes)
