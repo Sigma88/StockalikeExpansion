@@ -23,7 +23,7 @@ namespace SASSXPlugin
             // CREATE MODIFIED COLOR MAP
 
             ChicxulubFixer.MainTex = Utility.CreateReadable(Resources.FindObjectsOfTypeAll<Texture>().First(t => t.name == "KerbinScaledSpace300") as Texture2D);
-            Texture2D PlateauMain = Utility.CreateReadable(Resources.FindObjectsOfTypeAll<Texture>().First(t => t.name == "StockalikeSolarSystemExpansion/Configs/Bodies/Earth/EarthData/SpoliersInside/Textures/PlateauMain") as Texture2D);
+            Texture2D PlateauMain = Utility.CreateReadable(Resources.FindObjectsOfTypeAll<Texture>().First(t => t.name == "StockalikeSolarSystemExpansion/Configs/Bodies/Earth/EarthData/SpoilersInside/Textures/PlateauMain") as Texture2D);
             if (ChicxulubFixer.MainTex != null && PlateauMain != null)
             {
                 ChicxulubFixer.MainTex.SetPixels(2872, 913, PlateauMain.width, PlateauMain.height, PlateauMain.GetPixels());
@@ -33,8 +33,8 @@ namespace SASSXPlugin
 
             // CREATE MODIFIED BUMP MAP
 
-            ChicxulubFixer.BumpMap = Utility.CreateReadable(Resources.FindObjectsOfTypeAll<Texture>().First(t => t.name == "StockalikeSolarSystemExpansion/Configs/Bodies/Earth/EarthData/SpoliersInside/Textures/EarthCraterBumpMap") as Texture2D);
-            Texture2D PlateauBump = Utility.CreateReadable(Resources.FindObjectsOfTypeAll<Texture>().First(t => t.name == "StockalikeSolarSystemExpansion/Configs/Bodies/Earth/EarthData/SpoliersInside/Textures/PlateauBump") as Texture2D);
+            ChicxulubFixer.BumpMap = Utility.CreateReadable(Resources.FindObjectsOfTypeAll<Texture>().First(t => t.name == "StockalikeSolarSystemExpansion/Configs/Bodies/Earth/EarthData/SpoilersInside/Textures/EarthCraterBumpMap") as Texture2D);
+            Texture2D PlateauBump = Utility.CreateReadable(Resources.FindObjectsOfTypeAll<Texture>().First(t => t.name == "StockalikeSolarSystemExpansion/Configs/Bodies/Earth/EarthData/SpoilersInside/Textures/PlateauBump") as Texture2D);
 
             if (ChicxulubFixer.BumpMap != null && PlateauBump != null)
             {
@@ -45,7 +45,7 @@ namespace SASSXPlugin
 
             // CREATE MODIFIED BIOME MAPS
 
-            Texture2D CPWBiomes = Utility.CreateReadable(Resources.FindObjectsOfTypeAll<Texture>().First(t => t.name == "StockalikeSolarSystemExpansion/Configs/Bodies/Earth/EarthData/SpoliersInside/Textures/CraterPlateauWaterBiomes") as Texture2D);
+            Texture2D CPWBiomes = Utility.CreateReadable(Resources.FindObjectsOfTypeAll<Texture>().First(t => t.name == "StockalikeSolarSystemExpansion/Configs/Bodies/Earth/EarthData/SpoilersInside/Textures/CraterPlateauWaterBiomes") as Texture2D);
             Texture2D CraterBiomes = Resources.FindObjectsOfTypeAll<CBAttributeMapSO>().First(t => t.name == "kerbin_biome").CompileRGB();
             Texture2D PlateauBiomes = Utility.CreateReadable(CraterBiomes);
             Color Crater = new Color(0.6156862745098040f, 0.0745098039215686f, 0.0745098039215686f);
@@ -162,7 +162,7 @@ namespace SASSXPlugin
             // Restore COLOR MAP AND BUMP MAP
 
             Texture MainTex = Resources.FindObjectsOfTypeAll<Texture>().First(t => t.name == "KerbinScaledSpace300");
-            Texture BumpMap = Resources.FindObjectsOfTypeAll<Texture>().First(t => t.name == "StockalikeSolarSystemExpansion/Configs/Bodies/Earth/EarthData/SpoliersInside/Textures/EarthCraterBumpMap");
+            Texture BumpMap = Resources.FindObjectsOfTypeAll<Texture>().First(t => t.name == "StockalikeSolarSystemExpansion/Configs/Bodies/Earth/EarthData/SpoilersInside/Textures/EarthCraterBumpMap");
 
             if (MainTex != null && BumpMap != null)
             {
