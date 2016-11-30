@@ -85,10 +85,7 @@ namespace SASSXPlugin
         public bool Crater = true;
         public bool Asteroid = true;
         public bool FixBiomes = true;
-
-        void Start()
-        {
-        }
+        
         void Update()
         {
             if (earth != null)
@@ -209,6 +206,7 @@ namespace SASSXPlugin
 
         public void FixBiomeMap(CelestialBody body)
         {
+            FixBiomes = false;
             if (Crater)
                 body.BiomeMap = CraterBiomeMap;
             else
