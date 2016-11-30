@@ -46,7 +46,7 @@ namespace SASSXPlugin
             // CREATE MODIFIED BIOME MAPS
 
             Texture2D CPWBiomes = Utility.CreateReadable(Resources.FindObjectsOfTypeAll<Texture>().First(t => t.name == "StockalikeSolarSystemExpansion/Configs/Bodies/Earth/EarthData/SpoilersInside/Textures/CraterPlateauWaterBiomes") as Texture2D);
-            Texture2D CraterBiomes = Resources.FindObjectsOfTypeAll<CBAttributeMapSO>().First(t => t.name == "kerbin_biome").CompileRGB();
+            Texture2D CraterBiomes = Utility.CreateReadable(Resources.FindObjectsOfTypeAll<CBAttributeMapSO>().First(t => t.name == "kerbin_biome").CompileRGB());
             Texture2D PlateauBiomes = Utility.CreateReadable(CraterBiomes);
             Color Crater = new Color(0.6156862745098040f, 0.0745098039215686f, 0.0745098039215686f);
             Color Plateau = new Color(0.8941176470588240f, 0.4823529411764710f, 0.1098039215686270f);
