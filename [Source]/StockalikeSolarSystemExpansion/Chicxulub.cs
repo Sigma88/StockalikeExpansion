@@ -240,7 +240,7 @@ namespace SASSXPlugin
 
             if (time < -598122413200000)
                 now = Time.PREASTEROID;
-            else if (time < -598122400989261)
+            else if (time < -598122400976110) // -598122400989261
                 now = Time.ASTEROID;
             else
                 now = Time.POSTASTEROID;
