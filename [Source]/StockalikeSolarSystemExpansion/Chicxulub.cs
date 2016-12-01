@@ -12,41 +12,88 @@ using KSP.UI.Screens;
 
 namespace SASSXPlugin
 {
-    [KSPAddon(KSPAddon.Startup.SpaceCentre, true)]
-    public class TextureEditor : MonoBehaviour
+    [KSPAddon(KSPAddon.Startup.EveryScene, false)]
+    public class ChicxulubFixer : MonoBehaviour
     {
-        void Start()
+        public static CelestialBody earth = null;
+        public static CelestialBody impactor = null;
+        public static Texture2D MainTex = null;
+        public static Texture2D BumpMap = null;
+        public static CBAttributeMapSO CraterBiomeMap = ScriptableObject.CreateInstance<CBAttributeMapSO>();
+        public static CBAttributeMapSO PlateauBiomeMap = ScriptableObject.CreateInstance<CBAttributeMapSO>();
+
+        public static Time now = Time.NULL;
+        public enum Time
         {
-            ChicxulubFixer.earth = FlightGlobals.GetHomeBody();
-            ChicxulubFixer.impactor = FlightGlobals.Bodies.First(b => b.transform.name == "Chicxulub");
+            NULL,
+            PREASTEROID,
+            ASTEROID,
+            POSTASTEROID
+        }
+
+        void Update()
+        {
+            if (HighLogic.LoadedScene == GameScenes.MAINMENU)
+            {
+                if (earth == null)
+                    TextureEditor();
+
+                if (impactor == null)
+                    impactor = FlightGlobals.Bodies.First(b => b.transform.name == "Chicxulub");
+            }
+
+
+            if (earth != null && CheckTime())
+            {
+                if (now == Time.POSTASTEROID)
+                    RestoreCrater(earth);
+                else
+                    RemoveCrater(earth);
+
+                FixBiomeMap(earth);
+
+                if (impactor != null)
+                {
+                    if (now == Time.ASTEROID)
+                        ShowAsteroid(impactor);
+                    else
+                        HideAsteroid(impactor);
+                }
+            }
+        }
+
+
+        void TextureEditor()
+        {
+            earth = FlightGlobals.GetHomeBody();
 
             // CREATE MODIFIED COLOR MAP
 
-            ChicxulubFixer.MainTex = Utility.CreateReadable(Resources.FindObjectsOfTypeAll<Texture>().First(t => t.name == "KerbinScaledSpace300") as Texture2D);
+            MainTex = Utility.CreateReadable(Resources.FindObjectsOfTypeAll<Texture>().First(t => t.name == "KerbinScaledSpace300") as Texture2D);
             Texture2D PlateauMain = Utility.CreateReadable(Resources.FindObjectsOfTypeAll<Texture>().First(t => t.name == "StockalikeSolarSystemExpansion/Configs/Bodies/Earth/EarthData/SpoilersInside/Textures/PlateauMain") as Texture2D);
-            if (ChicxulubFixer.MainTex != null && PlateauMain != null)
+            if (MainTex != null && PlateauMain != null)
             {
-                ChicxulubFixer.MainTex.SetPixels(2872, 913, PlateauMain.width, PlateauMain.height, PlateauMain.GetPixels());
-                ChicxulubFixer.MainTex.name = "EarthPlateauMainTex";
-                ChicxulubFixer.MainTex.Apply();
+                MainTex.SetPixels(2872, 913, PlateauMain.width, PlateauMain.height, PlateauMain.GetPixels());
+                MainTex.name = "EarthPlateauMainTex";
+                MainTex.Apply();
             }
 
             // CREATE MODIFIED BUMP MAP
 
-            ChicxulubFixer.BumpMap = Utility.CreateReadable(Resources.FindObjectsOfTypeAll<Texture>().First(t => t.name == "StockalikeSolarSystemExpansion/Configs/Bodies/Earth/EarthData/SpoilersInside/Textures/EarthCraterBumpMap") as Texture2D);
+            BumpMap = Utility.CreateReadable(Resources.FindObjectsOfTypeAll<Texture>().First(t => t.name == "StockalikeSolarSystemExpansion/Configs/Bodies/Earth/EarthData/SpoilersInside/Textures/EarthCraterBumpMap") as Texture2D);
             Texture2D PlateauBump = Utility.CreateReadable(Resources.FindObjectsOfTypeAll<Texture>().First(t => t.name == "StockalikeSolarSystemExpansion/Configs/Bodies/Earth/EarthData/SpoilersInside/Textures/PlateauBump") as Texture2D);
 
-            if (ChicxulubFixer.BumpMap != null && PlateauBump != null)
+            if (BumpMap != null && PlateauBump != null)
             {
-                ChicxulubFixer.BumpMap.SetPixels(2872, 913, PlateauBump.width, PlateauBump.height, PlateauBump.GetPixels());
-                ChicxulubFixer.BumpMap.name = "EarthPlateauBumpMap";
-                ChicxulubFixer.BumpMap.Apply();
+                BumpMap.SetPixels(2872, 913, PlateauBump.width, PlateauBump.height, PlateauBump.GetPixels());
+                BumpMap.name = "EarthPlateauBumpMap";
+                BumpMap.Apply();
             }
 
             // CREATE MODIFIED BIOME MAPS
 
             Texture2D CPWBiomes = Utility.CreateReadable(Resources.FindObjectsOfTypeAll<Texture>().First(t => t.name == "StockalikeSolarSystemExpansion/Configs/Bodies/Earth/EarthData/SpoilersInside/Textures/CraterPlateauWaterBiomes") as Texture2D);
-            CBAttributeMapSO kerbinbiome = ChicxulubFixer.earth.BiomeMap;
+            CBAttributeMapSO kerbinbiome = earth.BiomeMap;
 
             Texture2D CraterBiomes = new Texture2D(kerbinbiome.Width, kerbinbiome.Height);
             Texture2D PlateauBiomes = new Texture2D(kerbinbiome.Width, kerbinbiome.Height);
@@ -90,66 +137,10 @@ namespace SASSXPlugin
                 }
             }
 
-            ChicxulubFixer.CraterBiomeMap.CreateMap(MapSO.MapDepth.RGB, CraterBiomes);
-            ChicxulubFixer.PlateauBiomeMap.CreateMap(MapSO.MapDepth.RGB, PlateauBiomes);
+            CraterBiomeMap.CreateMap(MapSO.MapDepth.RGB, CraterBiomes);
+            PlateauBiomeMap.CreateMap(MapSO.MapDepth.RGB, PlateauBiomes);
             DestroyImmediate(CraterBiomes);
             DestroyImmediate(PlateauBiomes);
-        }
-    }
-
-
-
-    [KSPAddon(KSPAddon.Startup.EveryScene, false)]
-    public class ChicxulubFixer : MonoBehaviour
-    {
-        public static CelestialBody earth = null;
-        public static CelestialBody impactor = null;
-        public static Texture2D MainTex = null;
-        public static Texture2D BumpMap = null;
-        public static CBAttributeMapSO CraterBiomeMap = ScriptableObject.CreateInstance<CBAttributeMapSO>();
-        public static CBAttributeMapSO PlateauBiomeMap = ScriptableObject.CreateInstance<CBAttributeMapSO>();
-        public bool Crater = true;
-        public bool Asteroid = true;
-        public bool FixBiomes = true;
-
-        void Update()
-        {
-            if (earth != null)
-            {
-                double time = Planetarium.GetUniversalTime();
-                double epoch = earth.orbit.epoch;
-                if ((time - epoch) < -598122400989261 && Crater)
-                {
-                    Crater = false;
-                    FixBiomes = true;
-                    RemoveCrater(earth);
-                }
-                else if ((time - epoch) > -598122400989261 && !Crater)
-                {
-                    Crater = true;
-                    FixBiomes = true;
-                    RestoreCrater(earth);
-                }
-                if (FixBiomes)
-                    FixBiomeMap(earth);
-            }
-            if (impactor != null)
-            {
-                double time = Planetarium.GetUniversalTime() - earth.orbit.epoch;
-                if (time > -598122413200000 && time < -598122400989261)
-                {
-                    if (!Asteroid)
-                    {
-                        Asteroid = true;
-                        ShowAsteroid(impactor);
-                    }
-                }
-                else if (Asteroid)
-                {
-                    Asteroid = false;
-                    HideAsteroid(impactor);
-                }
-            }
         }
 
 
@@ -176,7 +167,8 @@ namespace SASSXPlugin
                 if (mod.name == "MapDecal" && mod.order == 10 && !mod.modEnabled)
                 {
                     mod.modEnabled = true;
-                    mod.sphere.RebuildSphere();
+                    if (HighLogic.LoadedScene == GameScenes.FLIGHT)
+                        mod.sphere.RebuildSphere();
                 }
             }
         }
@@ -208,7 +200,8 @@ namespace SASSXPlugin
                 if (mod.name == "MapDecal" && mod.order == 10 && mod.modEnabled)
                 {
                     mod.modEnabled = false;
-                    mod.sphere.RebuildSphere();
+                    if (HighLogic.LoadedScene == GameScenes.FLIGHT)
+                        mod.sphere.RebuildSphere();
                 }
             }
         }
@@ -216,8 +209,8 @@ namespace SASSXPlugin
 
         void ShowAsteroid(CelestialBody body)
         {
-            body.orbitDriver.Renderer.drawMode = OrbitRenderer.DrawMode.REDRAW_AND_RECALCULATE;
-            body.orbitDriver.Renderer.drawIcons = OrbitRenderer.DrawIcons.OBJ;
+            body.Set("drawMode", OrbitRenderer.DrawMode.REDRAW_AND_RECALCULATE);
+            body.Set("drawIcons", OrbitRenderer.DrawIcons.OBJ);
             body.scaledBody.SetActive(true);
             body.sphereOfInfluence = body.Radius * 3;
         }
@@ -225,20 +218,34 @@ namespace SASSXPlugin
 
         void HideAsteroid(CelestialBody body)
         {
-            body.orbitDriver.Renderer.drawMode = OrbitRenderer.DrawMode.OFF;
-            body.orbitDriver.Renderer.drawIcons = OrbitRenderer.DrawIcons.NONE;
+            body.Set("drawMode", OrbitRenderer.DrawMode.OFF);
+            body.Set("drawIcons", OrbitRenderer.DrawIcons.NONE);
             body.scaledBody.SetActive(false);
             body.sphereOfInfluence = 0;
         }
 
 
-        public void FixBiomeMap(CelestialBody body)
+        void FixBiomeMap(CelestialBody body)
         {
-            FixBiomes = false;
-            if (Crater)
+            if (now == Time.POSTASTEROID)
                 body.BiomeMap = CraterBiomeMap;
             else
                 body.BiomeMap = PlateauBiomeMap;
+        }
+
+        bool CheckTime()
+        {
+            double time = Planetarium.GetUniversalTime() - Templates.epoch;
+            Time then = now;
+
+            if (time < -598122413200000)
+                now = Time.PREASTEROID;
+            else if (time < -598122400989261)
+                now = Time.ASTEROID;
+            else
+                now = Time.POSTASTEROID;
+
+            return then != now;
         }
     }
 }
