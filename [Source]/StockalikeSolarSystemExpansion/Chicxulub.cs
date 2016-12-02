@@ -179,7 +179,7 @@ namespace SASSXPlugin
             // Restore COLOR MAP AND BUMP MAP
 
             Texture MainTex = Resources.FindObjectsOfTypeAll<Texture>().First(t => t.name == "KerbinScaledSpace300");
-            Texture BumpMap = Resources.FindObjectsOfTypeAll<Texture>().First(t => t.name == "StockalikeSolarSystemExpansion/Configs/Bodies/Earth/EarthData/SpoilersInside/Textures/EarthCraterBumpMap");
+            Texture BumpMap = Resources.FindObjectsOfTypeAll<Texture>().First(t => t.name == "KerbinScaledSpace401");
 
             if (MainTex != null && BumpMap != null)
             {
@@ -240,7 +240,7 @@ namespace SASSXPlugin
 
             if (time < -598122413200000)
                 now = Time.PREASTEROID;
-            else if (time < -598122400976110) // -598122400989261
+            else if (time < -598122400976110)
                 now = Time.ASTEROID;
             else
                 now = Time.POSTASTEROID;
