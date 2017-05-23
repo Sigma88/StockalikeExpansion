@@ -10,7 +10,7 @@ using System.Linq;
 using KSP.UI.Screens;
 
 
-namespace SASSXPlugin
+namespace SASSxPlugin
 {
     [KSPAddon(KSPAddon.Startup.EveryScene, false)]
     public class ChicxulubFixer : MonoBehaviour
