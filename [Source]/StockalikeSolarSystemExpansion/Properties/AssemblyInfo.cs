@@ -8,7 +8,7 @@
 [assembly: AssemblyCopyright("Copyright (C) Sigma88 2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
-[assembly: KSPAssembly("StockalikeSolarSystem", 1, 0)]
-[assembly: KSPAssemblyDependency("Kopernicus", 1, 0)]
+[assembly: KSPAssembly("StockalikeSolarSystemExpansion", 1, 0)]
+[assembly: KSPAssemblyDependency("StockalikeSolarSystem", 1, 0)]
 [assembly: AssemblyVersion("1.0.0")]
 
