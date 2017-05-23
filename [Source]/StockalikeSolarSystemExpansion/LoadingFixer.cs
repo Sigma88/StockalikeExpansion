@@ -11,49 +11,81 @@ using SASSPlugin;
 namespace SASSxPlugin
 {
     [KSPAddon(KSPAddon.Startup.Instantly, true)]
-    class FixLoadingScreen : SASSPlugin.FixLoadingScreen
+    public class FixLoadingScreen : SASSPlugin.FixLoadingScreen
     {
+        public static bool useSASSxLoadingScreen = true;
+
         void Awake()
         {
-            bool useSASSxLoadingScreen = true;
-
-            foreach (ConfigNode Settings in GameDatabase.Instance.GetConfigNodes("SASSxLoadingScreen"))
-            {
-                if (Settings.HasValue("useSASSxLoadingScreen"))
-                {
-                    NumericParser<bool> userSetting = new NumericParser<bool>();
-                    userSetting.SetFromString(Settings.GetValue("useSASSxLoadingScreen"));
-                    if (userSetting.value == false)
-                    {
-                        useSASSxLoadingScreen = false;
-                    }
-                    if (userSetting.value == true)
-                    {
-                        useSASSxLoadingScreen = true;
-                        break;
-                    }
-                }
-            }
+            useSASSxLoadingScreen = GetSetting("useSASSxLoadingScreen", true);
+            if (useSASSLoadingScreen && useSASSxLoadingScreen)
+                useSASSLoadingScreen = GetSetting("keepSASSLoadingScreen", false);
 
             if (useSASSxLoadingScreen)
             {
                 newLoadingScreen = new SASSxLoadingScreen();
             }
         }
+
+        bool GetSetting(string name, bool Default)
+        {
+            bool output = Default;
+
+            foreach (ConfigNode Settings in GameDatabase.Instance.GetConfigNodes("SASSxLoadingScreen"))
+            {
+                if (Settings.HasValue(name))
+                {
+                    NumericParser<bool> userSetting = new NumericParser<bool>();
+                    userSetting.SetFromString(Settings.GetValue(name));
+                    if (userSetting.value == Default)
+                    {
+                        return Default;
+                    }
+                    else
+                    {
+                        output = !Default;
+                    }
+                }
+            }
+
+            return output;
+        }
     }
 
-    class SASSxLoadingScreen : SASSLoadingScreen
+    public class SASSxLoadingScreen : SASSLoadingScreen
     {
-        List<LoadingScreen.LoadingScreenState> LoadingScreens = new List<LoadingScreen.LoadingScreenState>();
-        
-        public override void UpdateScreens()
+        public override void UpdateScreens(LoadingScreen.LoadingScreenState screen)
         {
-            SASSxScreens();
-            SASSScreens();
+            List<string> newTips = new List<string>();
+            List<Texture2D> newScreens = new List<Texture2D>();
+
+            if (SASSPlugin.FixLoadingScreen.useSASSLoadingScreen)
+            {
+                newTips.AddRange(SASSTips());
+                newScreens.AddRange(SASSScreens());
+            }
+
+            if (FixLoadingScreen.useSASSxLoadingScreen)
+            {
+                newTips.AddRange(SASSxTips());
+                newScreens.AddRange(SASSxScreens());
+            }
+
+            if (newTips.Count > 0)
+                screen.tips = newTips.ToArray();
+
+            if (newScreens.Count > 0)
+                screen.screens = newScreens.ToArray();
         }
 
-        public void SASSxScreens()
+        public List<string> SASSxTips()
         {
+            return new List<string>();
+        }
+
+        public List<Texture2D> SASSxScreens()
+        {
+            return new List<Texture2D>();
         }
     }
 }
