@@ -42,11 +42,18 @@ namespace SASSxPlugin
         }
     }
 
-    class SASSxLoadingScreen : NewLoadingScreen
+    class SASSxLoadingScreen : SASSLoadingScreen
     {
-        public void UpdateScreen()
+        List<LoadingScreen.LoadingScreenState> LoadingScreens = new List<LoadingScreen.LoadingScreenState>();
+        
+        public override void UpdateScreens()
         {
-            Debug.Log("SigmaLog: LOADING SCREENS INTERCEPTED BY SASSx");
+            SASSxScreens();
+            SASSScreens();
+        }
+
+        public void SASSxScreens()
+        {
         }
     }
 }
